@@ -1,0 +1,500 @@
+---
+title: "Clase 1 - R basico"
+author: "David Hervás"
+date: "14/12/2018"
+output: 
+  html_document:
+    theme: paper
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Instrucciones básicas de R
+
+El intérprete de R se puede utilizar como una simple calculadora
+
+```{r calculadora}
+3+5
+12+2^3
+3*(2+5)
+sqrt(16)
+```
+
+Dentro de las funciones más básicas está la de asignación, que nos sirve para almacenar valores en objetos
+
+```{r asignacion}
+x <- 11
+y <- 12
+x+y
+```
+
+En R el símbolo de asignación recomendado es '<-', aunque puede utilizarse también '=':
+
+```{r asignacion2}
+x = 14
+x
+```
+
+Incluso se puede usar como asignacion '->'
+
+```{r right_arrow}
+y <- 3 -> x
+x
+y
+```
+
+## Estructuras de datos
+### Escalar
+
+```{r escalar}
+x <- 5
+x
+```
+
+### Vector
+
+Si combinamos varios escalares a lo largo de una dimensión, formamos un vector
+
+```{r vector}
+x <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+x
+```
+
+En realidad, los escalares en R son vectores de longitud 1
+
+### Matriz
+
+Si combinamos varios vectores a lo largo de una segunda dimensión formamos una matriz
+
+```{r}
+x2 <- matrix(x, ncol=2)
+x2
+cat("\n")
+x3 <- matrix(x, byrow = TRUE, ncol=2)
+x3
+```
+
+### Array
+
+Podemos seguir combinando a lo largo de más dimensiones, por ejemplo la combinación de varias matrices
+
+```{r}
+x3 <- array(x, dim=c(2, 1, 5))
+x3
+```
+
+Podemos saber el tipo de objeto mediante la función class()
+
+```{r}
+class(x)
+class(x2)
+class(x3)
+```
+
+Todas las estructuras que hemos visto no tienen por qué ser numéricas.
+Pueden ser de caracteres
+
+```{r}
+x <- "a"
+x
+x2 <- matrix(c("a", "b", "c", "d", "e", "f", "g", "h"), ncol=2)
+x2
+```
+
+O incluso lógicas
+
+```{r}
+x <- TRUE
+x
+x2 <- matrix(c(TRUE, TRUE, TRUE, FALSE, FALSE, TRUE), ncol=2)
+x2
+class(x)
+class(x2)
+```
+
+En estos tipos de objeto no se pueden mezclar los tipos (numérico, carácter o lógico). Si se hace, se coerciona el resultado al tipo más general:
+
+```{r}
+c("a", "b", 1, 2)
+c(TRUE, TRUE, 1, 2)
+c("A", TRUE, 3)
+```
+
+### data.frame
+
+Los data.frame son estructuras de datos más sofisticadas, ya que permiten la combinación de distintos tipos en un mismo objeto. Aunque deben ser de la misma longitud
+
+```{r}
+df <- data.frame(v1 = c("a", "b"), v2 = c(TRUE, FALSE), v3 = c(4, 5))
+df
+class(df)
+df$v1
+class(df$v1)
+class(df$v2)
+class(df$v3)
+```
+
+### lista
+
+Las listas son las estructuras de datos más generales, en el sentido de que pueden almacenar cualquier otro objeto de cualquier tipo y de cualquier longitud. Incluso pueden almacenar otras listas
+
+```{r}
+lista <- list("a", TRUE, c(1, 2), data.frame(v1 = c(1, 2, 3), v2 = c("A", "B", "C")))
+lista
+```
+
+
+## Vectorización de operaciones
+
+En R, la mayoría de las operaciones están vectorizadas, por lo que se aplican a lo largo de un vector por defecto
+
+```{r}
+x <- 10:1
+x * 2
+x + 1
+y <- 1:10
+x + y
+x * y
+```
+
+## Subsetting
+
+Se entiende por subsetting la selección de un subconjunto de los datos contenidos en un objeto determinado. En general, el operador para su realización es el corchete '[]', aunque en data.frame también se puede utilizar el dolar '$' y en listas se puede utilizar el doble corchete '[[]]'
+
+### En vectores
+
+El valor o valores dentro del corchete determinan las posiciones que se seleccionan.
+
+```{r}
+x[1]
+x[10]
+x[1:4]
+x[-(1:4)]
+x[c(1, 3, 5, 7, 9)]
+x[seq(1, 9, by = 2)]
+rev(rev(x)[1])
+```
+
+A diferencia de python, el operador '-' no sirve para seleccionar empezando por el final, sino para eliminar datos
+
+### En matrices y data.frame
+
+En este caso se pueden seleccionar filas
+
+```{r}
+x2 <- matrix(1:30, ncol=3)
+x2
+x2[1, ]
+x2[1, ,drop=FALSE]
+x2[1:3, ]
+```
+
+Columnas
+
+```{r}
+x2[, 2]
+x2[, 2, drop=FALSE]
+```
+
+Fijaos que si no añadimos el parámetro drop=FALSE, tras el subsetting ya no nos queda una matriz, sino que se simplifica a un vector.
+
+Y también filas y columnas a la vez:
+
+```{r}
+x2[1:4, 2:3]
+```
+
+### También se puede hacer subsetting por expresiones lógicas
+
+```{r}
+x
+x[c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)]
+x[x > 8]
+```
+
+En este caso se seleccionan los elementos con una expresión lógica de `r TRUE`
+
+Por lo tanto en nuestro data.frame, si quisiéramos seleccionar únicamente las filas con valores de v3 superiores a 4:
+
+```{r}
+df
+df[df$v3 > 4, ]
+```
+
+## Expresiones lógicas
+
+Dada la importancia de las expresiones lógicas para realizar subsetting y manipular los datos, las repasamos a conninuación.
+
+### Igualdad
+
+```{r}
+x <- 4
+x == 3
+x == 4
+```
+
+### Desigualdad
+
+```{r}
+x != 3
+x != 4
+```
+
+### Mayor y menor que
+
+```{r}
+x > 8
+x < 8
+```
+
+### Mayor o igual y menor o igual que
+
+```{r}
+x >= 4
+x <= 4
+```
+
+### Contenido en
+
+```{r}
+x %in% 3
+x %in% 4
+x %in% c(3, 4)
+```
+
+En este último caso, no sería válido usar '==', ya que R vectoriza y nos devolvería un resultado distinto
+
+```{r}
+x == c(3, 4)
+```
+
+### Negación
+
+Devuelve la expresión lógica contraria
+
+```{r}
+!TRUE
+x == 4
+!x == 4
+```
+
+### Combinación de expresiones lógicas
+
+Las expresiones lógicas pueden combinarse con distintos operadores
+
+El operador '&' implica que se tienen que cumplir las dos condiciones para devolver TRUE
+
+```{r}
+x[x > 2 & x < 8]
+```
+
+El operador '|' (or) implica que se tiene que cumplir al menos una de las dos condiciones para devolver TRUE
+
+```{r}
+x[x < 2 | x > 8] 
+```
+
+El operador 'xor' implica que se tiene que cumplir o una o la otra condición, pero no las dos a la vez
+
+```{r}
+x[xor(x < 2, x %in% c(1, 3, 5))]
+```
+
+## Valores especiales: El NA
+
+El valor de NA está reservado para representar a los valores ausentes (Not Available). El problema de NA es que no se lleva bien con los operadores lógicos
+
+```{r}
+x <- c(1, 2, 3, 4, NA, 6, 7, 8, 9, 10)
+x * 2
+x + 1
+x[x < 2]
+x[x > 2]
+x[x == 2]
+```
+
+Si queremos ser restrictivos y eliminar los NA al hacer subsetting, hay que buscar alguna alternativa:
+
+### Para la igualdad, usar el operador '%in%'
+
+```{r}
+x[x == 4]
+x[x %in% 4]
+```
+
+### Para <, >, <= y >=, usar las funciones %>NA%, %<NA%, %>=NA%, %<=NA% del paquete clickR
+
+```{r}
+library(clickR)
+x[x < 2]
+x[x %<NA% 2]
+x[x %<=NA% 4]
+```
+
+### Filtrarlos a mano con la función especial is.na()
+
+```{r}
+x[x < 2 & !is.na(x)]
+```
+
+## Comparadores lógicos especiales
+
+Como ya se ha visto con is.na(), hay una serie de operadores especiales para determinar si un valor es de un tipo especial o no
+
+```{r}
+is.na(c(1, 2, 3, NA))
+
+is.infinite(c(1/0, log(0)))
+
+is.nan(c(log(-1), NA))
+
+is.na(c(log(-1), NA))
+
+is.null(NULL)
+
+is.numeric(x)
+
+is.character("a")
+
+is.logical("TRUE")
+is.logical(TRUE)
+
+is.data.frame(df)
+
+```
+
+## Otras operaciones con vectores, matrices y data.frames
+
+### Combinar vectores en filas o columnas
+
+```{r}
+x <- c(1, 2, 3, 4, 5)
+y <- c(6, 7, 8, 9, 10)
+
+xy <- cbind(x, y)
+xy
+rbind(x, y)
+
+cbind(xy, y)
+rbind(xy, c(9, 9))
+
+```
+
+## Funciones de control de flujo
+
+### Expresiones condicionales if... else
+
+Este tipo de construcciones evalúan una expresión lógica y ejecutan una acción en el caso de que sea TRUE y (opcionalmente) ejecutan otra acción alternativa en el caso de que sea FALSE.
+
+```{r}
+x <- 8
+if(x > 5) print("Hola")
+
+if(x < 5) print("Hola") else print("Adiós")
+```
+
+En los casos con 'else', hay que tener especial cuidado con la sintaxis (quitar comentarios para probar)
+
+```{r}
+#if(x < 5) print("Hola")
+#else print("Adiós")
+```
+
+Lo más seguro es meterlo todo en la misma linea o utilizar '{}'
+
+```{r}
+if(x < 5){
+  print("Hola")
+} else {
+  print("Adiós")
+}
+```
+
+### Bucles for
+
+¿Cómo se podría calcular cuanto suman los números del 1 al 10?
+
+
+```{r}
+p <- 0
+for(i in 1:10){
+  p <- p + i
+}
+p
+```
+
+Aunque los bucles no suelen ser casi nunca la mejor opción en R
+
+```{r}
+sum(1:10)
+```
+
+Otros ejemplos:
+
+```{r}
+for(i in 1:10){
+  print(i^2)
+}
+(1:10)^2
+x2 <- matrix(1:30, ncol=3)
+for(i in 1:3) print(mean(x2[,i]))
+colMeans(x2)
+```
+
+Casi siempre se pueden sustituir por funciones de la familia apply
+
+```{r}
+apply(x2, 2, mean)
+apply(x2, 1, mean)
+```
+
+### Bucles while
+
+A diferencia de los for, que se sabe de antemano cuanto van a durar, estos siguen ejecutándose hasta que se alcance una condición determinada (que podría no alcanzarse nunca)
+
+```{r}
+library(numDeriv)
+z <- function(x) 3*x^2-2*x-5
+x <- 0.5
+
+while(abs(z(x)) >= 0.001){
+  x <- x - z(x)/genD(z, x)$D[1]
+}
+x
+```
+
+## Creación de funciones
+
+Imaginemos que tenemos un proceso que consiste en sumarle a un número x una determinada cantidad y y luego multiplicar ese resultado por y.
+
+```{r}
+(2+3)*3
+(2+4)*4
+
+sumamulti <- function(x, y){
+  (x+y)*y
+}
+sumamulti(2, 3)
+sumamulti(2, 4)
+
+plot(-10:10, sumamulti(2, -10:10), type="l")
+lines(-10:10, sumamulti(3, -10:10))
+```
+
+## Importar datos
+
+R puede importar datos de distintos softwares como SPSS, Stata, SAS, etc. Aunque lo más usado es el formato de texto plano en .csv. 
+
+```{r}
+datos <- read.csv2("http://mural.uv.es/daherma/sce.csv")
+datos
+
+datos2 <- read.table("http://mural.uv.es/daherma/sce.csv", header=TRUE, sep=";", dec=",")
+datos2
+```
+
+## Ejemplos y ejercicios
